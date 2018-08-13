@@ -66,9 +66,12 @@ void error(const __FlashStringHelper*err) {
 /**************************************************************************/
 void setup(void)
 {
-  while (!Serial);
-  delay(500);
-  Serial.begin(115200);
+
+  /** Uncomment these for debugging to Serial (Micro USB)**/
+  //while (!Serial);
+  //delay(500);
+  //Serial.begin(115200);
+   
   while (!Serial1);
   delay(500);
   Serial1.begin(115200);
