@@ -71,10 +71,17 @@ BLEHidAdafruit blehid;
 // connected
 #define USB_PIN         (A5)
 
-// Minimum battery MV when charging
-int chargingMinMv = 4153;
+// Anything over this indicate full battery
+int FullBatMinMv = 4100;
 // Minimum battery MV before low battery
 int lowBatMinMv = 3300;
+// Calculate battery running average
+const int numBatMvReadings = 100;
+int batMvReadings[numBatMvReadings];
+int batMvReadIndex = 0;
+int batMvTotal = 0;
+int batMvAverage = 0;
+
 
 void setup() {
 
@@ -89,7 +96,7 @@ void setup() {
   Bluefruit.begin();
   Bluefruit.setName("Kinesis Advantage 2");
   // Set bluetooth power - Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
-  Bluefruit.setTxPower(-12);
+  Bluefruit.setTxPower(4);
   // On-board blue LED: On (true) / Off (false)
   Bluefruit.autoConnLed(true);
 
@@ -179,12 +186,12 @@ void loop() {
   } else {
      // Power OFF - check if USB is connected
     if(digitalRead(USB_PIN) == HIGH) {
-      if(readBAT() > chargingMinMv) { 
-         // Battery Charging = YELLOW
-         buttonColor(YELLOW);
-      } else {
-        // Battery Full = GREEN
+      if(readBAT() > FullBatMinMv) { 
+         // Battery Full = GREEN
          buttonColor(GREEN);
+      } else {
+        // Battery Charging = YELLOW
+         buttonColor(YELLOW);
       }
     } else {
       buttonColor(OFF);
@@ -270,27 +277,34 @@ float readBAT(void) {
   analogReference(AR_INTERNAL_3_0);
   // Set the resolution to 12-bit (0..4095)
   analogReadResolution(12);
-  // ADC needs to settle
-  delay(1);
 
-  // Average raw bit for smoother values
-  // and remove overlaps
-  float sumRaw = 0;
-  int i;
-  int numReadings = 30;
-  for (i=0; i < numReadings; i++) {
-    // Add 12bit raw voltage to sum
-    sumRaw += analogRead(BAT_PIN);
+  // Remove old reading at current index
+  batMvTotal = batMvTotal - batMvReadings[batMvReadIndex];
+  // Read new value and replace at index
+  batMvReadings[batMvReadIndex] = analogRead(BAT_PIN);
+  // Update our total with new value
+  batMvTotal = batMvTotal + batMvReadings[batMvReadIndex];
+  // Go to next value in array
+  batMvReadIndex = batMvReadIndex + 1;
+
+  // if we're at the end of the array...
+  if (batMvReadIndex >= numBatMvReadings) {
+    // ...wrap around to the beginning:
+    batMvReadIndex = 0;
   }
 
-  float avgRaw =sumRaw/numReadings;
+  // Calculate running average
+  batMvAverage = batMvTotal / numBatMvReadings;
+  
+  // ADC needs to settle - delay for stability
+  delay(1);
 
   // Set ADC back to defaults
   analogReference(AR_DEFAULT);
   analogReadResolution(10);
 
   // Used 10k resistors to divide voltage in 2.
-  return avgRaw * BAT_MV_PER_LSB * 2;
+  return batMvAverage * BAT_MV_PER_LSB * 2;
 }
 
 void buttonColor(int color) {
