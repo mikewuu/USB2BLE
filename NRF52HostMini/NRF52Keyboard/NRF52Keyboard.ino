@@ -74,7 +74,7 @@ BLEHidAdafruit blehid;
 // Minimum battery MV before low battery
 int lowBatMinMv = 3300;
 // Calculate battery running average
-const int numBatMvReadings = 100;
+const int numBatMvReadings = 30;
 int batMvReadings[numBatMvReadings];
 int batMvReadIndex = 0;
 int batMvTotal = 0;
@@ -182,23 +182,19 @@ void loop() {
        buttonColor(RED);
     }
   } else {
-     // Power OFF - check if USB is connected
-    if(digitalRead(USB_PIN) == HIGH) {
-      // Check to see if battery is charging or full
-      int battMv = readBAT();
-      if(battMv > 4140) {
-        // Battery Charging = YELLOW
-        buttonColor(YELLOW);
-      } else if (battMv > 4080) {
-        // Battery Full = GREEN
+     int UsbMv = readUSB();
+     if(UsbMv > 1000) {
+      // USB Is on
+      if(UsbMv > 5000) {
+        // FULL
         buttonColor(GREEN);
       } else {
-        // Battery Charging = YELLOW
-         buttonColor(YELLOW);
+        // CHARGING
+        buttonColor(YELLOW);
       }
-    } else {
-      buttonColor(OFF);
-    }
+     } else {
+       buttonColor(OFF);
+     }
   }
 
   // Sleep CPU
@@ -308,6 +304,27 @@ float readBAT(void) {
 
   // Used 10k resistors to divide voltage in 2.
   return batMvAverage * BAT_MV_PER_LSB * 2;
+}
+
+// Raw values on USB Pin
+float readUSB(void) {
+  // Set the analog reference to 3.0V (default = 3.6V)
+  // ie. 0 = 0v and max resolution = 3v
+  analogReference(AR_INTERNAL_3_0);
+  // Set the resolution to 12-bit (0..4095)
+  analogReadResolution(12);
+
+  int UsbRawMv = analogRead(USB_PIN);
+  
+  // ADC needs to settle - delay for stability
+  delay(1);
+
+  // Set ADC back to defaults
+  analogReference(AR_DEFAULT);
+  analogReadResolution(10);
+
+  // Used 10k resistors to divide voltage in 2.
+  return UsbRawMv * BAT_MV_PER_LSB * 2;
 }
 
 void buttonColor(int color) {
