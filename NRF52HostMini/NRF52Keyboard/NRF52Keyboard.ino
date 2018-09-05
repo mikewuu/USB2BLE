@@ -71,8 +71,6 @@ BLEHidAdafruit blehid;
 // connected
 #define USB_PIN         (A5)
 
-// Anything over this indicate full battery
-int FullBatMinMv = 4100;
 // Minimum battery MV before low battery
 int lowBatMinMv = 3300;
 // Calculate battery running average
@@ -100,8 +98,8 @@ void setup() {
   // On-board blue LED: On (true) / Off (false)
   Bluefruit.autoConnLed(true);
 
-  bledis.setManufacturer("WU Tech");
-  bledis.setModel("K2ADV1");
+  bledis.setManufacturer("Mike Wu");
+  bledis.setModel("Kinesis Advantage 2");
   
   bledis.begin();
   blehid.begin();
@@ -186,9 +184,14 @@ void loop() {
   } else {
      // Power OFF - check if USB is connected
     if(digitalRead(USB_PIN) == HIGH) {
-      if(readBAT() > FullBatMinMv) { 
-         // Battery Full = GREEN
-         buttonColor(GREEN);
+      // Check to see if battery is charging or full
+      int battMv = readBAT();
+      if(battMv > 4140) {
+        // Battery Charging = YELLOW
+        buttonColor(YELLOW);
+      } else if (battMv > 4080) {
+        // Battery Full = GREEN
+        buttonColor(GREEN);
       } else {
         // Battery Charging = YELLOW
          buttonColor(YELLOW);
