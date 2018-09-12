@@ -17,14 +17,20 @@ void buttonRGB(int red, int green, int blue)
 
 void buttonColor(int color) {
   switch (color) {
-    case YELLOW: buttonRGB(255, 255, 0);
+    case ORANGE: buttonRGB(255, 128, 0);
       break;
     case GREEN: buttonRGB(0, 255, 0);
       break;
-    case RED: buttonRGB(255, 0, 0);
-      break;
     case BLUE: buttonRGB(0, 0, 255);
       break;
+    case BLUERED: buttonRGB(128, 0, 255);
+      break;
+    case PURPLE: buttonRGB(255, 0, 255);
+      break;
+    case REDBLUE: buttonRGB(255, 0, 128);
+      break;      
+    case RED: buttonRGB(255, 0, 0);
+      break;      
     default: buttonRGB(0, 0, 0);
       break;      
   }

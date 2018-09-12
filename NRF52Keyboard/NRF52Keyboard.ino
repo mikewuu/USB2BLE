@@ -30,18 +30,28 @@ void loop() {
 
   // Set ON/OFF Button Color
   if(digitalRead(FIVE_VOLT_PIN) == HIGH) {        // Power ON - Check if it's low battery
-     if(readBAT() > 3300) { 
-         buttonColor(BLUE);                       // NORMAL
-      } else {
-         buttonColor(RED);                        // LOW
+
+    int BatMv = round(readBAT() / 100) * 100;
+
+    if(BatMv > 4000) {
+      buttonColor(BLUE);
+    } else if (BatMv > 3700) {
+      buttonColor(BLUERED);
+    } else if (BatMv > 3500) {
+      buttonColor(PURPLE);
+    } else if (BatMv > 3300) {
+      buttonColor(REDBLUE);
+    } else {
+      buttonColor(RED);
     }
+    
   } else {
       int UsbMv = round(readUSB() / 10) * 10;
       if(UsbMv > 1000) {                          // USB Connected
         if(UsbMv >= 5000) {
           buttonColor(GREEN);                     // FULL
         } else {
-          buttonColor(YELLOW);                    // CHARGING
+          buttonColor(ORANGE);                    // CHARGING
         }
      } else {
        buttonColor(OFF);

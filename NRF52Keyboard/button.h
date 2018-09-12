@@ -14,10 +14,13 @@
    * Can't switch on strings so we define as ints
    */
   #define OFF 0
-  #define YELLOW 1
+  #define ORANGE 1
   #define GREEN 2
-  #define RED 3
-  #define BLUE 4
+  #define BLUE 3
+  #define BLUERED 4
+  #define PURPLE 5
+  #define REDBLUE 6
+  #define RED 7
 
   void buttonRGB(int red, int green, int blue);
   void buttonColor(int color);
