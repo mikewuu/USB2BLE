@@ -2,6 +2,11 @@
 
 #include "power.h"
 
+
+int batLastReported = 0;
+int batLastReportTime = -10001;                                // Check battery every 10 seconds
+
+
 // Calculate battery running average
 const int numBatMvReadings = 30;
 int batMvReadings[numBatMvReadings];
@@ -18,24 +23,13 @@ float readBAT() {
   // Set the resolution to 12-bit (0..4095)
   analogReadResolution(12);
 
-  // Remove old reading at current index
-  batMvTotal = batMvTotal - batMvReadings[batMvReadIndex];
-  // Read new value and replace at index
-  batMvReadings[batMvReadIndex] = analogRead(BAT_PIN);
-  // Update our total with new value
-  batMvTotal = batMvTotal + batMvReadings[batMvReadIndex];
-  // Go to next value in array
-  batMvReadIndex = batMvReadIndex + 1;
+  int runtime = millis();
+  if(runtime - batLastReportTime > 10000){
+   int rawBatMv = analogRead(BAT_PIN) * MV_PER_LSB * 2;       // Used 10k resistors to divide voltage in 2.
+   batLastReported = round(rawBatMv / 100) * 100;
+   batLastReportTime = runtime;
+  } 
 
-  // if we're at the end of the array...
-  if (batMvReadIndex >= numBatMvReadings) {
-    // ...wrap around to the beginning:
-    batMvReadIndex = 0;
-  }
-
-  // Calculate running average
-  batMvAverage = batMvTotal / numBatMvReadings;
-  
   // ADC needs to settle - delay for stability
   delay(1);
 
@@ -43,8 +37,7 @@ float readBAT() {
   analogReference(AR_DEFAULT);
   analogReadResolution(10);
 
-  // Used 10k resistors to divide voltage in 2.
-  return batMvAverage * MV_PER_LSB * 2;
+  return batLastReported;
 }
 
 // Raw values on USB Pin
@@ -55,7 +48,7 @@ float readUSB() {
   // Set the resolution to 12-bit (0..4095)
   analogReadResolution(12);
 
-  int UsbRawMv = analogRead(USB_PIN);
+  int UsbRawMv = analogRead(USB_PIN) * MV_PER_LSB * 2;      // Used 10k resistors to divide voltage in 2.
   
   // ADC needs to settle - delay for stability
   delay(1);
@@ -64,6 +57,5 @@ float readUSB() {
   analogReference(AR_DEFAULT);
   analogReadResolution(10);
 
-  // Used 10k resistors to divide voltage in 2.
-  return UsbRawMv * MV_PER_LSB * 2;
+  return round(UsbRawMv / 10) * 10;
 }

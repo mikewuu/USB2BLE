@@ -33,7 +33,7 @@ void loop() {
 
     int BatMv = round(readBAT() / 100) * 100;
 
-    if(BatMv > 4000) {
+    if(BatMv > 3900) {
       buttonColor(BLUE);
     } else if (BatMv > 3700) {
       buttonColor(BLUERED);
@@ -46,7 +46,7 @@ void loop() {
     }
     
   } else {
-      int UsbMv = round(readUSB() / 10) * 10;
+      int UsbMv = readUSB();
       if(UsbMv > 1000) {                          // USB Connected
         if(UsbMv >= 5000) {
           buttonColor(GREEN);                     // FULL
