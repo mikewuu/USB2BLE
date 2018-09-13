@@ -23,13 +23,13 @@ void buttonColor(int color) {
       break;
     case BLUE: buttonRGB(0, 0, 255);
       break;
-    case BLUERED: buttonRGB(70, 0, 255);
+    case BLUERED: buttonRGB(25, 0, 230);
       break;
-    case PURPLE: buttonRGB(255, 0, 255);
+    case PURPLE: buttonRGB(70, 0, 180);
       break;
-    case REDBLUE: buttonRGB(255, 0, 100);
+    case REDBLUE: buttonRGB(80, 0, 135);
       break;      
-    case RED: buttonRGB(255, 0, 0);
+    case RED: buttonRGB(120, 0, 0);
       break;      
     default: buttonRGB(0, 0, 0);
       break;      

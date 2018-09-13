@@ -22,7 +22,7 @@ void setup() {
 
 
 void loop() {
-
+  
   // Read key press on serial
   while (Serial.available()) {
     processSerial();
